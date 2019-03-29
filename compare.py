@@ -230,7 +230,7 @@ def get_mysip_investment(item, becnhmark_data_cleaned, mf_data_cleaned, amount):
     item['mysip'] = {'nav_count': round(my_nav_count, 4)}
     
 
-def main():
+def sip_cagr():
     becnhmark_data = read_benchmark(BENCHMARK_FILENAME)
     becnhmark_data_cleaned = clean_benchmark_data(becnhmark_data)
     
@@ -272,7 +272,29 @@ def main():
     print('sip_1_8_15_22_nav_count_total :{} value:{}'.format(sip_1_8_15_22_nav_count_total, sip_1_8_15_22_nav_count_total*39.7883))
     print('mysip_nav_count_total :{}'.format(mysip_nav_count_total, mysip_nav_count_total*39.7883))
     #print('input_data: {}'.format(input_data))
+
+
+def get_cagr(first_value, last_value, num_years):
+    CAGR = (last_value/first_value)**(1/num_years)-1
+    return CAGR
+
+def trailing_cagr():
+
+    mf_data = read_benchmark(MF_FILENAME)
+    mf_data_cleaned = clean_mf_data(mf_data)
+
+    start_nav = get_sip_nav(2006, 2, 14, mf_data_cleaned)
+    year_count = 1
+
+    for i in range(2007, 2019):
+        last_nav = get_sip_nav(i, 4, 4, mf_data_cleaned)
+        cagr = get_cagr(start_nav, last_nav, year_count)
+        year_count = year_count + 1
+
+        print('year={}  cagr={:.2%}'.format(i, cagr))
+
+
     
-    
-    
-main()
+trailing_cagr()
+
+#sip_cagr()
