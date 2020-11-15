@@ -83,15 +83,17 @@ def clean_mf_data(data):
         print('Exception :{}'.format(e))
 
 def get_input():
-    input_data = [{'year': 2018, 'month': 1}, {'year': 2018, 'month': 2}, {'year': 2018, 'month': 3}]
+    input_data = [{'year': 2008, 'month': 1}, {'year': 2008, 'month': 2}, {'year': 2008, 'month': 3}, {'year': 2008, 'month': 4}, {'year': 2008, 'month': 5}, {'year': 2008, 'month': 6}, {'year': 2008, 'month': 7}, {'year': 2008, 'month': 8}, {'year': 2008, 'month': 9}, {'year': 2008, 'month': 10}, {'year': 2008, 'month': 11}, {'year': 2008, 'month': 12}, {'year': 2009, 'month': 1}, {'year': 2009, 'month': 2}, {'year': 2009, 'month': 3}, {'year': 2009, 'month': 4}, {'year': 2009, 'month': 5}, {'year': 2009, 'month': 6}, {'year': 2009, 'month': 7}, {'year': 2009, 'month': 8}]
     #input_data = []
-    
-    for year in range(2007,2018):
+    '''
+    for year in range(2008,2009):
         for month in range(1,13):
             item = {}
             item['year'] = year
             item['month'] = month
             input_data.append(item)
+            
+    '''
             
     print('input_data:{}'.format(input_data))
     
@@ -238,6 +240,7 @@ def sip_cagr():
     mf_data_cleaned = clean_mf_data(mf_data)
     
     input_data = get_input()
+    sip_1_to_28_nav_count_total = 0
     sip_1_15_nav_count_total = 0
     sip_10_25_nav_count_total = 0
     sip_1_10_20_nav_count_total = 0
@@ -248,6 +251,9 @@ def sip_cagr():
     for item in input_data:
         max_days = calendar.monthrange(item.get('year'), item.get('month'))[1]
         item['days'] = max_days
+
+        get_sip_investment(item, becnhmark_data_cleaned, mf_data_cleaned, SIP_AMOUNT, "sip_1_to_28", [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28])
+        sip_1_to_28_nav_count_total += (item.get("sip_1_to_28")).get('nav_count')
         
         get_sip_investment(item, becnhmark_data_cleaned, mf_data_cleaned, SIP_AMOUNT, "sip_1_15", [1,15])
         sip_1_15_nav_count_total += (item.get("sip_1_15")).get('nav_count')
@@ -266,6 +272,7 @@ def sip_cagr():
     
     CAGR = (sip_1_15_nav_count_total*39.7883/total_investment)**(1/5.25)-1
     print('total_investment :{} CAGR:{}'.format(total_investment, round(CAGR*100,2)))
+    print('sip_1_to_28_nav_count_total :{} value:{}'.format(sip_1_to_28_nav_count_total, sip_1_to_28_nav_count_total*39.7883))
     print('sip_1_15_nav_count_total :{} value:{}'.format(sip_1_15_nav_count_total, sip_1_15_nav_count_total*39.7883))
     print('sip_10_25_nav_count_total :{} value:{}'.format(sip_10_25_nav_count_total, sip_10_25_nav_count_total*39.7883))
     print('sip_1_10_20_nav_count_total :{} value:{}'.format(sip_1_10_20_nav_count_total, sip_1_10_20_nav_count_total*39.7883))
@@ -295,6 +302,6 @@ def trailing_cagr():
 
 
     
-trailing_cagr()
+#trailing_cagr()
 
-#sip_cagr()
+sip_cagr()
