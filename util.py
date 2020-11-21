@@ -27,14 +27,60 @@ def clean_data(data):
         #print('Data item length : {}'.format(len(data[0])))
         #print('Data item :{}'.format(data[0]))
 
+        nav_list = data.nav_dict
+
         data_cleaned = {}
 
-        iterdata = iter(data)
+        iterdata = iter(nav_list)
+
+        navsum20 = 0.0
+        for i in range(20):
+            navsum20 += get_norm_nav(nav_list[i][1])
+
+        navsum200 = 0.0
+        for i in range(200):
+            navsum200 += get_norm_nav(nav_list[i][1])
+
         #next(iterdata)
+        index = 0
         for dateitem in iterdata:
             #print("cur " + dateitem[0] + " next Monday " + get_next_date(dateitem[0], calendar.MONDAY))
             #break
-            data_cleaned[dateitem[0]] = get_norm_nav(dateitem[1])
+            #print('dateitem:{}'.format(data[0][0]))
+            #print('dateitem:{}'.format(data[1][1]))
+            #break
+
+            nav = get_norm_nav(dateitem[1])
+            data_cleaned[dateitem[0]] = nav
+
+            #if index < 5:
+            #    print('date:{} nav:{}'.format(dateitem[0], nav))
+            #    print('navsum20: {} navsum200: {}'.format(navsum20, navsum200))
+
+            data.dma20_dict[dateitem[0]] = round(navsum20/20, 4)
+            data.dma200_dict[dateitem[0]] = round(navsum200/200, 4)
+
+            #if data.filename == "sc-kotak.csv":
+            #    print('clean {} date: {} nav: {} navsum20: {} navsum200: {}'.format(data.filename, dateitem[1], dateitem[0], data.dma20_dict.get(dateitem[0]), data.dma200_dict.get(dateitem[0])))
+
+            if (index+20) < len(nav_list):
+                navsum20 -= get_norm_nav(nav_list[index][1])
+                navsum20 += get_norm_nav(nav_list[index+20][1])
+            else:
+                navsum20 = 0.0
+
+            if (index + 200) < len(nav_list):
+                navsum200 -= get_norm_nav(nav_list[index][1])
+                navsum200 += get_norm_nav(nav_list[index + 200][1])
+            else:
+                navsum200 = 0.0
+
+            index += 1
+
+        #print(data.dma20_dict)
+        #print(data.dma200_dict)
+
+        #    print('date:{} nav:'.format(dateitem))
 
         return data_cleaned
     except Exception as e:
@@ -61,7 +107,9 @@ def get_next_date(date_str): # date_str dd-mm-yyyy
 def get_next_date_weekday(date_str, weekday): # date_str dd-mm-yyyy weekday is 0 for Monday
 
     curday = datetime.datetime.strptime(date_str, DATE_CSV_FORMAT).weekday()
-    nextdays = 7 - curday + weekday
+    #nextdays = 7 - curday + weekday
+    nextdays = 7 - curday + weekday + 21 + 330
+
 
     try:
         next_date_str = (datetime.datetime.strptime(date_str, DATE_CSV_FORMAT) + timedelta(days=nextdays)).strftime \
@@ -115,4 +163,6 @@ def get_xirr(cashflows):
                 guess -= step
                 step /= 2.0
 
-    return guess - 1
+    xirr = guess - 1
+
+    return round(xirr * 100, 2)

@@ -4,21 +4,47 @@ import csv
 
 class MFData:
     filename = None
+    rebalance = None
+    isBuy = None
     nav_dict = None
+    dma200_dict = None
+    dma20_dict = None
+
     invested = None
     units = None
     last_nav = None
+    last_dma20 = None
+    last_dma200 = None
     last_date = None
     transaction_list = None
 
+    nav18 = None
+    nav15 = None
+    nav10 = None
+    nav0 = None
+    navall = None
+
     def __init__(self):
         self.filename = None
+        self.rebalance = False
+        self.isBuy = True
         self.nav_dict = None
+        self.dma200_dict = dict()
+        self.dma20_dict = dict()
+
         self.invested = 0
         self.units = 0.0
         self.last_nav = 0.0
+        self.last_dma20 = 0.0
+        self.last_dma200 = 0.0
         self.last_date = None
         self.transaction_list = list()
+
+        self.nav18 = 0
+        self.nav15 = 0
+        self.nav10 = 0
+        self.nav0 = 0
+        self.navall = 0
 
 
     def get_nav(self, date_str):
@@ -35,6 +61,8 @@ class MFData:
 
         return get_norm_nav(nav)
 
+
+
     def get_cur_value(self, date_str):
         nav = self.get_nav(date_str)
         cur_val = round(nav * self.units, 2)
@@ -49,6 +77,8 @@ class MFData:
 
         self.invested += amount
         self.last_nav = nav
+        self.last_dma20 = self.dma20_dict.get(date_str)
+        self.last_dma200 = self.dma200_dict.get(date_str)
         self.last_date = date_str
 
         #print("buy :" + str(self.filename) + " date :" + str(date_str) + " transaction_list :" + str(self.transaction_list))
@@ -67,6 +97,8 @@ class MFData:
 
         self.invested -= amount
         self.last_nav = nav
+        self.last_dma20 = self.dma20_dict.get(date_str)
+        self.last_dma200 = self.dma200_dict.get(date_str)
         self.last_date = date_str
 
         trans = (get_date(date_str), amount)
@@ -81,6 +113,7 @@ class MFData:
 class MFPortfolio:
 
     mf_data = {}
+    isBuy = True
 
 
     mf_data["sc-kotak.csv"] = None
@@ -92,17 +125,17 @@ class MFPortfolio:
     mf_data["debt-corp-franklin.csv"] = None
 
 
-
-
     def init_mf_data(self):
 
         try:
 
             for filename in self.mf_data.keys():
                 data = MFData()
-                data.nav_dict = read_data(filename)
-                data.nav_dict = clean_data(data.nav_dict)
                 data.filename = filename
+                data.nav_dict = read_data(filename)
+                data.nav_dict = clean_data(data)
+
+                data.rebalance = False
 
                 self.mf_data[filename] = data
 
@@ -131,6 +164,24 @@ class MFPortfolio:
 
         for data in self.mf_data.values():
             investment += round(data.units * data.last_nav, 2)
+
+        return investment
+
+    def get_cur_equity_value(self):
+        investment = 0.0
+
+        for data in self.mf_data.values():
+            if data.filename == 'sc-kotak.csv' or data.filename == 'mc-lt.csv' or data.filename == 'muc-sbi-focus.csv':
+                investment += round(data.units * data.last_nav, 2)
+
+        return investment
+
+    def get_cur_debt_value(self):
+        investment = 0.0
+
+        for data in self.mf_data.values():
+            if data.filename == 'debt-gilt-icici.csv' or data.filename == 'debt-dynamic-nippon.csv' or data.filename == 'debt-corp-franklin.csv':
+                investment += round(data.units * data.last_nav, 2)
 
         return investment
 
