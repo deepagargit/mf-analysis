@@ -7,10 +7,17 @@ from util import *
 
 portfolio = MFPortfolio()
 
-#DATE_START = '01-03-2005'
-DATE_START = '01-03-2006'
-#DATE_CUR = '25-03-2005'
+'''
+Golden Range - Rebalance April
+DATE_START = '01-04-2006'
 DATE_CUR = '25-01-2014'
+DATE_END = '14-11-2020'
+'''
+
+#DATE_START = '01-03-2005'
+DATE_START = '01-04-2006'
+#DATE_CUR = '25-03-2005'
+DATE_CUR = '25-04-2007'
 #DATE_CUR = '14-11-2020'
 
 DATE_END = '14-11-2020'
@@ -103,6 +110,7 @@ def invest_sip(amount, date_str, date_end_str):
     date_end = get_datetime(date_end_str)
 
     date_xirr = date_start + timedelta(days=365)
+    date_rebalance = date_start + timedelta(days=365)
 
     while(date_start < date_end):
 
@@ -112,6 +120,12 @@ def invest_sip(amount, date_str, date_end_str):
 
             if date_start > date_xirr:
                 set_xirr_counter(data)
+
+        '''
+        if date_start >= date_rebalance:
+            rebalance(0, date_start_str)
+            date_rebalance += timedelta(days=365)
+        '''
 
         date_start_str = get_next_date_weekday(date_start_str, calendar.MONDAY)
         date_start = get_datetime(date_start_str)
@@ -190,7 +204,7 @@ def should_rebalance_percentage():
 
         #print("filename" + str(filename) + " cur_value:" + str(cur_value) + " min:" + str(min) + " max:" + str(max))
 
-    if max > ((max+min)*65/100):
+    if max > ((max+min)*60/100):
         rebalance = True
 
     #print("rebalance :" + str(rebalance))
@@ -204,12 +218,12 @@ def should_rebalance_dma():
     for filename, data in portfolio.get_mf_data().items():
         if filename == "sc-kotak.csv" and data.last_dma20 is not None and data.last_dma200 is not None:
 
-            if portfolio.isBuy is True and data.last_nav < data.last_dma200:
+            if portfolio.isBuy is True and data.last_dma20 < data.last_dma200:
                 rebalance = True
                 portfolio.isBuy = False
                 print('Sell {}: last_date:{} last_dma20:{} last_dma200:{} equity:{} debt:{}'.format(filename, data.last_date, data.last_dma20,
                                                                              data.last_dma200, portfolio.get_cur_equity_value(), portfolio.get_cur_debt_value()))
-            elif portfolio.isBuy is False and data.last_nav > data.last_dma200:
+            elif portfolio.isBuy is False and data.last_dma20 > data.last_dma200:
                 rebalance = True
                 portfolio.isBuy = True
                 print('Buy {}: last_date:{} last_dma20:{} last_dma200:{} equity:{} debt:{}'.format(filename,
@@ -276,14 +290,14 @@ def invest_rebalance(amount, date_str, date_end_str):
 
 def main():
     portfolio.init_mf_data()
-    #invest_sip(6000, DATE_START, DATE_CUR)
+    #invest_sip(600000, DATE_START, DATE_CUR)
     #invest_custom(0, DATE_CUR, DATE_END)
 
-    invest_custom(6000, DATE_START, DATE_CUR)
-    invest_custom(0, DATE_CUR, DATE_END)
+    #invest_custom(600000, DATE_START, DATE_CUR)
+    #invest_custom(0, DATE_CUR, DATE_END)
 
-    #invest_rebalance(6000, DATE_START, DATE_CUR)
-    #invest_rebalance(0, DATE_CUR, DATE_END)
+    invest_rebalance(600000, DATE_START, DATE_CUR)
+    invest_rebalance(0, DATE_CUR, DATE_END)
     print_returns()
 
     #portfolio.init_mf_data()
