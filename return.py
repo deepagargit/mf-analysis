@@ -10,14 +10,14 @@ portfolio = MFPortfolio()
 '''
 Golden Range - Rebalance April
 DATE_START = '01-04-2006'
-DATE_CUR = '25-01-2014'
+DATE_CUR = '25-04-2014'
 DATE_END = '14-11-2020'
 '''
 
 #DATE_START = '01-03-2005'
 DATE_START = '01-04-2006'
 #DATE_CUR = '25-03-2005'
-DATE_CUR = '25-04-2007'
+DATE_CUR = '25-04-2014'
 #DATE_CUR = '14-11-2020'
 
 DATE_END = '14-11-2020'
@@ -273,7 +273,7 @@ def invest_rebalance(amount, date_str, date_end_str):
                     #print('{} date:{} amount:{}'.format(filename, date_start_str, amount_per_mf))
             '''
 
-        if should_rebalance_percentage() is True:
+        if should_rebalance_dma() is True:
             rebalance(0, date_start_str)
 
         for filename, data in portfolio.get_mf_data().items():
@@ -293,11 +293,11 @@ def main():
     #invest_sip(600000, DATE_START, DATE_CUR)
     #invest_custom(0, DATE_CUR, DATE_END)
 
-    #invest_custom(600000, DATE_START, DATE_CUR)
-    #invest_custom(0, DATE_CUR, DATE_END)
+    invest_custom(6000, DATE_START, DATE_CUR)
+    invest_custom(0, DATE_CUR, DATE_END)
 
-    invest_rebalance(600000, DATE_START, DATE_CUR)
-    invest_rebalance(0, DATE_CUR, DATE_END)
+    #invest_rebalance(600000, DATE_START, DATE_CUR)
+    #invest_rebalance(0, DATE_CUR, DATE_END)
     print_returns()
 
     #portfolio.init_mf_data()
