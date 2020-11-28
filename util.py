@@ -11,7 +11,7 @@ DATE_NORMALISED_FORMAT = '%Y%m%d'
 
 def read_data(filename):
     try:
-        with open(filename) as f:
+        with open("csv/" + filename) as f:
             reader = csv.reader(f)
             for i in range(5):
                 next(reader)  # skip header
@@ -108,7 +108,7 @@ def get_next_date_weekday(date_str, weekday): # date_str dd-mm-yyyy weekday is 0
 
     curday = datetime.datetime.strptime(date_str, DATE_CSV_FORMAT).weekday()
     #nextdays = 7 - curday + weekday
-    nextdays = 7 - curday + weekday + 21 + 330
+    nextdays = 7 - curday + weekday
 
 
     try:

@@ -7,20 +7,24 @@ from util import *
 
 portfolio = MFPortfolio()
 
+frequency_xirr = 30 # days
+frequency_sip = 30     # days
+frequency_rebalance = 30
+
 '''
 Golden Range - Rebalance April
 DATE_START = '01-04-2006'
-DATE_CUR = '25-04-2014'
-DATE_END = '14-11-2020'
+DATE_CUR = '01-04-2014'
+DATE_END = '23-11-2020'
 '''
 
 #DATE_START = '01-03-2005'
-DATE_START = '01-04-2006'
+DATE_START = '01-04-2013'
 #DATE_CUR = '25-03-2005'
-DATE_CUR = '25-04-2014'
+DATE_CUR = '01-04-2018'
 #DATE_CUR = '14-11-2020'
 
-DATE_END = '14-11-2020'
+DATE_END = '23-11-2020'
 #DATE_END = '14-03-2007'
 
 def print_returns():
@@ -46,7 +50,9 @@ def print_returns():
 
         print("filename :" + str(filename) + " investment :" + str(investmemt) + " value: " + str(int(value)) + " period :" + str(period) + " cagr :" + str(cagr) + " xirr :" + str(xirr))
 
-        print("filename :" + str(filename) + " nav18 :" + str(round(data.nav18*100/data.navall,1)) + " nav15 :" + str(round(data.nav15*100/data.navall,1)) + " nav10 :" + str(round(data.nav10*100/data.navall,1)) + " nav0 :" + str(round(data.nav0*100/data.navall,1)) + " len: " + str(len(data.transaction_list)))
+        print("filename :" + str(filename) + " nav18 :" + str(round(data.nav18*100/data.navall,1)) + " nav15 :" + str(round(data.nav15*100/data.navall,1)) + \
+              " nav10 :" + str(round(data.nav10*100/data.navall,1)) + " nav0 :" + str(round(data.nav0*100/data.navall,1)) + " navall :" + str(data.navall) + \
+              " sipbuy :" + str(data.sipbuy) + " sipsell :" + str(data.sipsell) + " len: " + str(len(data.transaction_list)))
 
 
 
@@ -109,26 +115,47 @@ def invest_sip(amount, date_str, date_end_str):
     date_start = get_datetime(date_start_str)
     date_end = get_datetime(date_end_str)
 
-    date_xirr = date_start + timedelta(days=365)
-    date_rebalance = date_start + timedelta(days=365)
+    date_xirr_start = date_start + timedelta(days=365)
+    date_xirr_next = date_start + timedelta(days=frequency_xirr)
+    date_sip_next = date_start
+    date_rebalance = date_start + timedelta(days=frequency_rebalance)
+
+    sip_flag = False
+    xirr_flag = False
 
     while(date_start < date_end):
 
         for filename, data in portfolio.get_mf_data().items():
             #print("filename :" + str(filename) + " date_start_str :" +  str(date_start_str) + "data :" + str(data))
-            data.buy(amount_per_mf, date_start_str)
 
-            if date_start > date_xirr:
+            if date_start >= date_sip_next:
+                data.buy(amount_per_mf, date_start_str)
+                sip_flag = True
+
+
+            #if date_start > date_xirr_start:
+            if date_start >= date_xirr_next:
                 set_xirr_counter(data)
+                xirr_flag = True
 
-        '''
+
         if date_start >= date_rebalance:
             rebalance(0, date_start_str)
-            date_rebalance += timedelta(days=365)
-        '''
+            date_rebalance += timedelta(days=frequency_rebalance)
+
 
         date_start_str = get_next_date_weekday(date_start_str, calendar.MONDAY)
         date_start = get_datetime(date_start_str)
+
+        if sip_flag is True:
+            date_sip_next += timedelta(days=frequency_sip)
+            sip_flag = False
+
+        if xirr_flag is True:
+            date_xirr_next += timedelta(days=frequency_xirr)
+            xirr_flag = False
+
+
 
 def invest_custom(amount, date_str, date_end_str):
     print("**Custom**")
@@ -141,6 +168,11 @@ def invest_custom(amount, date_str, date_end_str):
     date_end = get_datetime(date_end_str)
 
     date_xirr = date_start + timedelta(days=1)
+
+    date_xirr_next = date_start + timedelta(days=frequency_xirr)
+    date_rebalance_next = date_start
+
+    xirr_flag = False
 
     while(date_start < date_end):
 
@@ -160,14 +192,22 @@ def invest_custom(amount, date_str, date_end_str):
                 data.sell(int(cur_value - target_amount_per_mf), date_start_str)
         '''
 
-        rebalance(amount, date_start_str)
+        if date_start >= date_rebalance_next:
+            rebalance(amount, date_start_str)
+            date_rebalance_next += timedelta(days=frequency_rebalance)
 
         for filename, data in portfolio.get_mf_data().items():
-            if date_start > date_xirr:
+            if date_start >= date_xirr_next:
+            #if date_start > date_xirr:
                 set_xirr_counter(data)
+                xirr_flag = True
 
         date_start_str = get_next_date_weekday(date_start_str, calendar.MONDAY)
         date_start = get_datetime(date_start_str)
+
+        if xirr_flag is True:
+            date_xirr_next += timedelta(days=frequency_xirr)
+            xirr_flag = False
 
 
 def rebalance(amount, date_start_str):
@@ -290,11 +330,11 @@ def invest_rebalance(amount, date_str, date_end_str):
 
 def main():
     portfolio.init_mf_data()
-    #invest_sip(600000, DATE_START, DATE_CUR)
-    #invest_custom(0, DATE_CUR, DATE_END)
-
-    invest_custom(6000, DATE_START, DATE_CUR)
+    invest_sip(600000, DATE_START, DATE_CUR)
     invest_custom(0, DATE_CUR, DATE_END)
+
+    #invest_custom(600000, DATE_START, DATE_CUR)
+    #invest_custom(0, DATE_CUR, DATE_END)
 
     #invest_rebalance(600000, DATE_START, DATE_CUR)
     #invest_rebalance(0, DATE_CUR, DATE_END)

@@ -23,6 +23,8 @@ class MFData:
     nav10 = None
     nav0 = None
     navall = None
+    sipbuy = None
+    sipsell = None
 
     def __init__(self):
         self.filename = None
@@ -45,6 +47,8 @@ class MFData:
         self.nav10 = 0
         self.nav0 = 0
         self.navall = 0
+        self.sipbuy = 0
+        self.sipsell = 0
 
 
     def get_nav(self, date_str):
@@ -72,6 +76,9 @@ class MFData:
     def buy(self, amount, date_str):
         nav = self.get_nav(date_str)
 
+        if nav is None:
+            print('filename: {} date: {} nav :{}'.format(self.filename, date_str, nav))
+
         units = round(float(amount/nav), 4)
         self.units += units
 
@@ -80,8 +87,9 @@ class MFData:
         self.last_dma20 = self.dma20_dict.get(date_str)
         self.last_dma200 = self.dma200_dict.get(date_str)
         self.last_date = date_str
+        self.sipbuy += 1
 
-        #print("buy :" + str(self.filename) + " date :" + str(date_str) + " transaction_list :" + str(self.transaction_list))
+        #print("buy :" + str(self.filename) + " date :" + str(date_str)) # + " transaction_list :" + str(self.transaction_list))
 
         trans = (get_date(date_str), -1*amount)
         self.transaction_list.append(trans)
@@ -100,11 +108,12 @@ class MFData:
         self.last_dma20 = self.dma20_dict.get(date_str)
         self.last_dma200 = self.dma200_dict.get(date_str)
         self.last_date = date_str
+        self.sipsell += 1
 
         trans = (get_date(date_str), amount)
         self.transaction_list.append(trans)
 
-        #print("sell :" + str(self.filename) + " date :" + str(date_str) + " transaction_list :" + str(self.transaction_list))
+        #print("sell :" + str(self.filename) + " date :" + str(date_str)) # + " transaction_list :" + str(self.transaction_list))
 
 
 
@@ -115,14 +124,55 @@ class MFPortfolio:
     mf_data = {}
     isBuy = True
 
+    '''
 
     mf_data["sc-kotak.csv"] = None
-
     mf_data["mc-lt.csv"] = None
     mf_data["muc-sbi-focus.csv"] = None
+
+    mf_data["sc-kotak2.csv"] = None
+    mf_data["mc-lt2.csv"] = None
+    mf_data["muc-sbi-focus2.csv"] = None
+    
     mf_data["debt-gilt-icici.csv"] = None
     mf_data["debt-dynamic-nippon.csv"] = None
     mf_data["debt-corp-franklin.csv"] = None
+    
+    '''
+
+    mf_data["canara_large_mid_cap.csv"] = None
+    mf_data["invesco_contra.csv"] = None
+    mf_data["kotak_mid_cap.csv"] = None
+    mf_data["lt_mid_cap.csv"] = None
+    mf_data["mirae_large_mid_cap.csv"] = None
+    mf_data["motilal_nasdaq.csv"] = None
+    mf_data["nippon_small_cap.csv"] = None
+    mf_data["nippon_small_cap2.csv"] = None
+    mf_data["sbi_small_cap2.csv"] = None
+    mf_data["sbi_small_cap.csv"] = None
+
+    mf_data["canara_large_mid_cap2.csv"] = None
+    mf_data["invesco_contra2.csv"] = None
+    mf_data["kotak_mid_cap2.csv"] = None
+    mf_data["lt_mid_cap2.csv"] = None
+    mf_data["mirae_large_mid_cap2.csv"] = None
+    mf_data["motilal_nasdaq2.csv"] = None
+    mf_data["nippon_small_cap3.csv"] = None
+    mf_data["nippon_small_cap4.csv"] = None
+    mf_data["sbi_small_cap3.csv"] = None
+    mf_data["sbi_small_cap4.csv"] = None
+
+    mf_data["debt_axis_dynamic.csv"] = None
+    mf_data["debt_axis_psu.csv"] = None
+    mf_data["debt_axis_psu2.csv"] = None
+    mf_data["debt_hdfc_corporate.csv"] = None
+    mf_data["debt_hdfc_corporate2.csv"] = None
+    mf_data["debt_kotak_gold.csv"] = None
+    mf_data["debt_nippon_gilt.csv"] = None
+    mf_data["debt_sbi_dynamic.csv"] = None
+    mf_data["debt_sbi_gilt.csv"] = None
+    mf_data["debt_sbi_gold.csv"] = None
+
 
 
     def init_mf_data(self):
